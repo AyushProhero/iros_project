@@ -1,0 +1,32 @@
+:root {
+    --primary-blue: #3b82f6;
+    --emerald-accent: #10b981;
+    --rose-accent: #f43f5e;
+    --dark-bg: #020617;
+}
+
+body {
+    background-color: var(--dark-bg);
+    background-image: 
+        linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
+    background-size: 50px 50px;
+    color: #f8fafc;
+}
+
+.glass-card {
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.4s ease;
+}
+
+.glass-card:hover {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.1);
+}
+
+@keyframes scan {
+    0% { top: 0%; }
+    100% { top: 100%; }
+}
