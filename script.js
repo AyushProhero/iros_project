@@ -707,12 +707,118 @@
       }, 3000);
     }
 
-// This creates the user in your Supabase database automatically
-async function signUpNewUser() {
-  const { data, error } = await supabase.auth.signUp({
-    email: 'example@email.com',
-    password: 'example-password',
-  })
+    // Authentication Handlers
+    async function handleSignIn(event) {
+      event.preventDefault();
+      const email = document.getElementById('signInEmail').value;
+      const password = document.getElementById('signInPassword').value;
+
+      if (!email || !password) {
+        showToast('Please enter both email and password.');
+        return;
+      }
+
+      // Check if user exists with matching credentials
+      const user = allUsers.find(u => u.user_email === email && u.user_password === password);
+      
+      if (user) {
+        currentUser = { email: user.user_email, name: user.user_name };
+        showMainApp();
+        showToast(`Welcome back, ${currentUser.name}!`);
+        document.getElementById('signInEmail').value = '';
+        document.getElementById('signInPassword').value = '';
+        // Scroll to hero section
+        setTimeout(() => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 100);
+      } else {
+        showToast('Invalid email or password. Please try again.');
+      }
+    }
+
+    async function handleSignUp(event) {
+      event.preventDefault();
+      const name = document.getElementById('signUpName').value;
+      const email = document.getElementById('signUpEmail').value;
+      const password = document.getElementById('signUpPassword').value;
+      const confirmPassword = document.getElementById('signUpConfirmPassword').value;
+
+      if (password !== confirmPassword) {
+        showToast('Passwords do not match!');
+        return;
+      }
+
+      if (password.length < 6) {
+        showToast('Password must be at least 6 characters long!');
+        return;
+      }
+
+      // Check if email already exists
+      const existingUser = allUsers.find(u => u.user_email === email);
+      if (existingUser) {
+        showToast('Email already registered. Please sign in instead.');
+        return;
+      }
+
+      // Save user to sheet
+      if (allUsers.length >= 999) {
+        showToast('Maximum users reached. Please contact support.');
+        return;
+      }
+
+      const result = await window.dataSdk.create({
+        user_email: email,
+        user_password: password,
+        user_name: name,
+        user_created_at: new Date().toISOString(),
+        event_id: null,
+        event_name: null,
+        attendees: null,
+        budget: null,
+        event_date: null,
+        city: null,
+        venue_type: null,
+        venue_name: null,
+        match_score: null,
+        estimated_cost: null,
+        booking_status: null,
+        created_at: null
+      });
+
+      if (result.isOk) {
+        currentUser = { name, email };
+        document.getElementById('signUpName').value = '';
+        document.getElementById('signUpEmail').value = '';
+        document.getElementById('signUpPassword').value = '';
+        document.getElementById('signUpConfirmPassword').value = '';
+        
+        // Show main app and display welcome message
+        showMainApp();
+        showToast(`Welcome, ${name}! Your account has been created.`);
+        
+        // Scroll to top to see the hero section
+        setTimeout(() => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 100);
+      } else {
+        showToast('Failed to create account. Please try again.');
+      }
+    }
+
+    function showMainApp() {
+      isAuthPage = false;
+      document.getElementById('authPage').classList.add('hidden');
+      document.getElementById('mainApp').classList.remove('hidden');
+      document.getElementById('userNameDisplay').textContent = currentUser.name;
+    }
+
+    function logout() {
+      currentUser = null;
+      isAuthPage = true;
+      document.getElementById('authPage').classList.remove('hidden');
+      document.getElementById('mainApp').classList.add('hidden');
+      showToast('Logged out successfully.');
+    }
 
     // Venue Optimization
     async function optimizeVenue(event) {
